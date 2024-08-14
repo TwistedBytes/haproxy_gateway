@@ -5,3 +5,4 @@ config/ssl/tbd*
 tmp
 /haproxy-gateway
 /haproxy-gateway-*.rpm
+/config/haproxy-simple/state/haproxy.state

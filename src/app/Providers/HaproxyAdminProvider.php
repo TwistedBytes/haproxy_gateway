@@ -14,11 +14,13 @@ class HaproxyAdminProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(AdminInterface::class, function (Application $app) {
-
-            return new AdminInterface(
+            $ai = new AdminInterface(
                 connection_string: config('haproxyadmin.connection_string'),
                 state_path: config('haproxyadmin.state_path'),
             );
+            $ai->setBackendDefaultoptions(config('haproxyadmin.backend_defaultoptions'));
+
+            return $ai;
         });
     }
 

@@ -15,6 +15,8 @@ class AdminInterface {
 
     private mixed $socket = null;
     private string $connection_string;
+
+    private string $backend_defaultoptions = 'check';
     /**
      * @var mixed|string
      */
@@ -311,5 +313,13 @@ class AdminInterface {
 
     function __destruct() {
         $this->closeSocket();
+    }
+
+    public function getBackendDefaultoptions(): string {
+        return $this->backend_defaultoptions;
+    }
+
+    public function setBackendDefaultoptions(string $backend_defaultoptions): void {
+        $this->backend_defaultoptions = $backend_defaultoptions;
     }
 }

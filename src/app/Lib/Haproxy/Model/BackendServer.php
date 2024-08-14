@@ -13,7 +13,7 @@ class BackendServer {
 
     private string $options = '';
 
-    public function __construct(string $backend, string $server, string $address, int $port) {
+    public function __construct(string $backend, string $server, string $address='', int $port=80) {
         $this->backend = $backend;
         $this->server = $server;
         $this->address = $address;
