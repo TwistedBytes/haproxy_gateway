@@ -3,17 +3,11 @@ declare(strict_types=1);
 
 namespace App\Lib\Haproxy;
 
-use App\Lib\Haproxy\Command\SocketCommand;
 use App\Lib\Haproxy\Exceptions\HaproxyException;
 use App\Lib\Haproxy\Exceptions\UnknownApiReplyException;
-use App\Lib\Haproxy\Exceptions\UnkownApiReplyExceptions;
 use App\Lib\Haproxy\Model\ActionResult;
 use App\Lib\Haproxy\Model\BackendServer;
 use App\Lib\Haproxy\Model\Map;
-use HAProxy\Command\Base;
-use HAProxy\Command\HttpModel;
-use HAProxy\Exception;
-use HAProxy\Executor;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -157,6 +151,7 @@ class AdminInterface {
         }
         return $maps;
     }
+
     public function getMap(string $basename): Map {
         $maps = $this->getMaps();
         foreach ($maps as $map) {
@@ -203,7 +198,7 @@ class AdminInterface {
         return new ActionResult(true, 'Map deduped');
     }
 
-    public function addToMap(Map $map, string $key, string $value,  bool $skipSaveState = false): ActionResult {
+    public function addToMap(Map $map, string $key, string $value, bool $skipSaveState = false): ActionResult {
         $result = $this->socket(sprintf('add map %s %s %s', $map->getPath(), $key, $value));
         $skipSaveState || $this->saveMapState($map);
         return new ActionResult(trim($result) === '', $result);
@@ -217,15 +212,20 @@ class AdminInterface {
 
     private function saveMapState(Map $map): void {
         $path = $map->getPath();
-        $file = new \SplFileObject($path, 'w');
-        if ($file->isWritable()) {
-            $this->fillMap($map);
-            foreach ($map->getMap() as $key => $value) {
-                $file->fwrite(sprintf("%s %s\n", $key, $value));
+        if (is_file($path)) {
+            $file = new \SplFileObject($path, 'w');
+            if ($file->isWritable()) {
+                $this->fillMap($map);
+                foreach ($map->getMap() as $key => $value) {
+                    $file->fwrite(sprintf("%s %s\n", $key, $value));
+                }
+            } else {
+                Log::error("Could not write map to file {$path}");
             }
         } else {
-            Log::error("Could not write map to file {$path}");
+            Log::error("Could not write map to file {$path}, does not exist.");
         }
+
         $file = null;
     }
 
