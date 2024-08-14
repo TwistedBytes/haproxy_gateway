@@ -2,3 +2,4 @@
 caddy/config/caddy/
 caddy/data
 config/ssl/tbd*
+tmp

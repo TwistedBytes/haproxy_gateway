@@ -48,14 +48,14 @@ services:
   php-cli:
     image: twistedbytes/centos8-phpfpm82
     restart: "no"
-    working_dir: /app
+    working_dir: /app/src
     # user: "${APP_USER_ID}:${APP_GROUP_ID}"
     networks:
       backend:
     environment:
-      _TB_UIDGID_FROMDIR: /var/www/html
+      _TB_UIDGID_FROMDIR: /app
       # _TB_START_CMD: 'gosu www-data bash'
     volumes:
-      - ./src:/app
+      - ./:/app
       - ./config/haproxy-simple/:/usr/local/etc/haproxy/
     # local: podman compose run php-cli /bin/bash
