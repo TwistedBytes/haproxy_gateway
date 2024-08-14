@@ -6,12 +6,13 @@ TMPDIR=./tmp
 rm -Rf $TMPDIR
 # Export the project to get rid of .git/, etc
 mkdir -p $TMPDIR/my-prepared-app1
-if [[ $_GIT == 'yes' ]]; then
+if [[ $_GIT == 'no' ]]; then
+    cp -Rf src $TMPDIR/my-prepared-app
+else
     git archive HEAD | tar -x -C $TMPDIR/my-prepared-app1
     mv $TMPDIR/my-prepared-app1/src $TMPDIR/my-prepared-app
     rm -Rf $TMPDIR/my-prepared-app1
-else
-   cp -Rf src $TMPDIR/my-prepared-app
+
 fi
 
 cd $TMPDIR/my-prepared-app

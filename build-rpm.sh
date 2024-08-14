@@ -3,7 +3,7 @@
 set -ex
 
 VERSION=$( date +%Y.%m.%d )
-ITERATION=7
+ITERATION=8
 
 rm -Rf rpmbuild
 mkdir rpmbuild
