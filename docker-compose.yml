@@ -18,6 +18,7 @@ services:
       - "8443:443/udp" # HTTP/3
     environment:
       SERVER_NAME: "http://"
+      FRANKENPHP_CONFIG: "num_threads 4"
     volumes:
       - ./src/:/app
       # - ./caddy/config/etc/Caddyfile:/etc/caddy/Caddyfile

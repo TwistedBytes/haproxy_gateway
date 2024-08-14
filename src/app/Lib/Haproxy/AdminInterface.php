@@ -164,12 +164,18 @@ class AdminInterface {
 
     public function fillMap(Map $map): Map {
         $result = $this->socket('show map ' . $map->getPath());
+        if (trim($result) === '') {
+            Log::info("Empty map {$map->getPath()}");
+            $map->clear();
+            return $map;
+        }
+        if (Str::startsWith($result, 'Unknown keyword')) {
+            Log::info("Unknown map {$map->getPath()}");
+            return $map;
+        }
+
         $separator = "\n";
         $line = strtok($result, $separator);
-        if (!Str::startsWith($line, '0x') || $line === '') {
-            Log::error("Could not fill map {$map->getPath()}, error {$line}");
-            throw new UnknownApiReplyException("Could not fill map {$map->getPath()}, error {$line}");
-        }
 
         $map->clear();
         while ($line !== false) {

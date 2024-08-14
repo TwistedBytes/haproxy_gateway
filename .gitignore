@@ -4,3 +4,4 @@ caddy/data
 config/ssl/tbd*
 tmp
 /haproxy-gateway
+/haproxy-gateway-*.rpm

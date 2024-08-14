@@ -6,7 +6,7 @@ Requires=haproxy.service
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/bin/sh -c "curl https://localhost:8443/loadState"
+# ExecStart=/bin/sh -c "curl https://localhost:8443/loadState"
 # ExecStop=/bin/sh -c "/usr/bin/socat /run/haproxy/control.socket - <<< \"show servers state\" > /var/lib/haproxy/last_state"
 
 [Install]

@@ -1,0 +1,15 @@
+[Unit]
+Description=Simple service to interact with HAProxy from Twisted Bytes
+Before=haproxy.service
+Requires=haproxy.service
+
+[Service]
+Type=simple
+Restart=always
+User=haproxy
+Group=haproxy
+EnvironmentFile=-/etc/sysconfig/haproxy-gateway
+ExecStart=/opt/haproxy-gateway/haproxy-gateway php-server --listen $LISTEN $EXTRA_OPTIONS
+
+[Install]
+WantedBy=multi-user.target haproxy.service
