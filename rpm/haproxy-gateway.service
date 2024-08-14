@@ -8,6 +8,7 @@ Type=simple
 Restart=always
 User=haproxy
 Group=haproxy
+EnvironmentFile=-/etc/sysconfig/haproxy-gateway-defaults
 EnvironmentFile=-/etc/sysconfig/haproxy-gateway
 ExecStart=/opt/haproxy-gateway/haproxy-gateway php-server --listen $LISTEN $EXTRA_OPTIONS
 

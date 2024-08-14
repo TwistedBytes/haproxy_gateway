@@ -40,5 +40,5 @@ podman run --rm -ti \
         ./
 mv rpmbuild/haproxy-gateway-${VERSION}-${ITERATION}.x86_64.rpm .
 rm rpmbuild -Rvf
-scp -P2223 haproxy-gateway-${VERSION}-${ITERATION}.x86_64.rpm root@sp-staging-frontend-01.sportmonkssvc.eu:
+
 
