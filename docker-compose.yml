@@ -1,0 +1,61 @@
+networks:
+  backend:
+
+services:
+  php:
+    image: dunglas/frankenphp
+    # uncomment the following line if you want to use a custom Dockerfile
+    build: docker/frankenphp
+    # uncomment the following line if you want to run this in a production environment
+    # restart: always
+    networks:
+      backend:
+        aliases:
+          - frankenphp
+    ports:
+      - "8080:80" # HTTP
+      - "8443:443" # HTTPS
+      - "8443:443/udp" # HTTP/3
+    environment:
+      SERVER_NAME: "http://"
+    volumes:
+      - ./src/:/app
+      # - ./caddy/config/etc/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/data/:/data
+      - ./caddy/config/:/config
+      - ./config/haproxy-simple/:/usr/local/etc/haproxy/
+    # comment the following line in production, it allows to have nice human-readable logs in dev
+    tty: true
+
+  haproxy:
+    image: haproxytech/haproxy-ubuntu:2.8
+    networks:
+      backend:
+        aliases:
+          - haproxy-admin.tbdocker.xyz
+          - haproxy-stats.tbdocker.xyz
+          - haproxy-dataplaneapi.tbdocker.xyz
+          - proxy-gateway.tbdocker.xyz
+          - haproxy-stats
+    volumes:
+      - ./config/ssl/haproxy/:/etc/haproxy-ssl/
+      - ./config/haproxy-simple/:/usr/local/etc/haproxy/
+    ports:
+      - "8183:8443"
+      - "8081:8081" # haproxy admin socket
+      - "5555:5555" # haproxy dataplaneapi
+
+  php-cli:
+    image: twistedbytes/centos8-phpfpm82
+    restart: "no"
+    working_dir: /app
+    # user: "${APP_USER_ID}:${APP_GROUP_ID}"
+    networks:
+      backend:
+    environment:
+      _TB_UIDGID_FROMDIR: /var/www/html
+      # _TB_START_CMD: 'gosu www-data bash'
+    volumes:
+      - ./src:/app
+      - ./config/haproxy-simple/:/usr/local/etc/haproxy/
+    # local: podman compose run php-cli /bin/bash

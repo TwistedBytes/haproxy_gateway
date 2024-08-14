@@ -1,0 +1,77 @@
+# _md5hash=0d020f20841139adbf8efd4d51dc8fd3
+# _version=5
+# Dataplaneapi managed File
+# changing file directly can cause a conflict if dataplaneapi is running
+
+global
+  maxconn 4096
+  stats socket ipv4@127.0.0.1:9091 level admin
+  log stdout format raw daemon
+
+defaults unnamed_defaults_1
+  mode http
+  log global
+  option httplog
+  option dontlognull
+  timeout connect 5000
+  timeout client 50000
+  timeout server 50000
+
+userlist haproxy-dataplaneapi
+  user admin insecure-password adminpwd
+
+frontend admin_frontend from unnamed_defaults_1
+  mode tcp
+  bind *:8081
+  option tcplog
+  use_backend tcp_local_admin
+
+frontend soccer-default-ssl from unnamed_defaults_1
+  mode http
+  bind 0.0.0.0:8443 defer-accept tfo ssl crt /etc/haproxy-ssl/haproxy/ strict-sni alpn h2,http/1.1 ssl-min-ver TLSv1.2
+  log-format "access_log %ci:%cp [%tr] %ft:%fp %b/%s %TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r %si:%sp %[ssl_fc_sni]/%sslv/%sslc"
+  use_backend http_local_admin if { hdr_reg(Host) -i haproxy-admin.tbdocker.xyz[^:]* }
+  use_backend backend_stats_socket if { hdr_reg(Host) -i haproxy-stats.tbdocker.xyz[^:]* }
+  use_backend http_dataplaneapi if { hdr_reg(Host) -i haproxy-dataplaneapi.tbdocker.xyz[^:]* }
+  default_backend backend-blackhole
+  capture request header Host len 50
+  capture request header user-agent len 200
+  capture request header Authorization len 150
+  capture request header X-Forwarded-For len 150
+
+backend backend-blackhole from unnamed_defaults_1
+  disabled
+  mode http
+  balance roundrobin
+  default-server inter 2s downinter 5s rise 3 fall 2 slowstart 60s maxconn 400 maxqueue 128 weight 100
+
+backend backend_admin_socket from unnamed_defaults_1
+  mode http
+  server local_admin 127.0.0.1:9091
+
+backend backend_stats_socket from unnamed_defaults_1
+  mode http
+  stats enable
+  stats uri /
+
+backend backend_test from unnamed_defaults_1
+  mode http
+  server sp-api-backend-15 192.168.33.15:80 check
+  server sp-api-backend-16 192.168.34.16:80
+  server sp-api-backend-17 192.168.34.17:80
+
+backend http_dataplaneapi from unnamed_defaults_1
+  mode http
+  server local_admin 127.0.0.1:5555
+
+backend http_local_admin from unnamed_defaults_1
+  mode http
+  server local_admin 127.0.0.1:9091
+
+backend tcp_local_admin from unnamed_defaults_1
+  mode tcp
+  server local_admin 127.0.0.1:9091
+
+program api
+  command /usr/bin/dataplaneapi --host 0.0.0.0 --port 5555 --haproxy-bin /usr/sbin/haproxy --config-file /usr/local/etc/haproxy/haproxy.cfg --reload-cmd "kill -SIGUSR2 1" --reload-delay 5 --restart-cmd "kill -SIGUSR2 1" --userlist haproxy-dataplaneapi
+  no option start-on-reload
