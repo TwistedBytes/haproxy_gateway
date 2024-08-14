@@ -31,6 +31,6 @@ podman build -t static-app -f ${_PWD}/static-build.Dockerfile .
 podman cp $(podman create --name static-app-tmp static-app):/go/src/app/dist/frankenphp-linux-x86_64 my-app
 podman rm static-app-tmp
 mv my-app ${_PWD}/haproxy-gateway
-cd $PWD
+cd $_PWD
 rm tmp -Rf
 
