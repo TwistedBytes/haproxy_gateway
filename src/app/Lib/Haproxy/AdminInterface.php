@@ -264,6 +264,7 @@ class AdminInterface {
                 if (in_array($lineParts[1], $backends)) {
                     $backend = new BackendServer($lineParts[1], $lineParts[3], $lineParts[4], (int)$lineParts[18]);
                     $this->addServer($backend);
+                    Log::debug("Loaded server", ['server' => "{$backend->getBackend()}/{$backend->getServer()}"]);
                 }
             }
         }

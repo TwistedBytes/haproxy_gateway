@@ -59,10 +59,6 @@ class TestController extends Controller {
 
     }
 
-    public function loadState(){
-        $haproxyAdminInterface->loadServerState(['backend_test']);
-    }
-
     public function testDataplane() {
         $HaDP = new HaproxyDataplane();
         $result = $HaDP->request2();

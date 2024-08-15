@@ -2,8 +2,14 @@
 
 set -ex
 
+[[ -f ./rpm/last_version ]] && . ./rpm/last_version
+
 VERSION=$( date +%Y.%m.%d )
-ITERATION=8
+if [[ ${VERSION} == ${LAST_VERSION} ]]; then
+    ITERATION=$(( ${LAST_ITERATION} + 1 ))
+else
+    ITERATION=1
+fi
 
 rm -Rf rpmbuild
 mkdir rpmbuild
@@ -41,4 +47,5 @@ podman run --rm -ti \
 mv rpmbuild/haproxy-gateway-${VERSION}-${ITERATION}.x86_64.rpm .
 rm rpmbuild -Rvf
 
-
+echo LAST_VERSION=${VERSION} > ./rpm/last_version
+echo LAST_ITERATION=${ITERATION} >> ./rpm/last_version
