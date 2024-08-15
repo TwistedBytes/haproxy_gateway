@@ -265,6 +265,7 @@ class AdminInterface {
                 //6 backend_test 1 sp-api-backend-15 192.168.33.15 0 0 1 1 442 7 2 0 6 0 0 0 - 80 - 0 0 - - 0
                 if (in_array($lineParts[1], $backends)) {
                     $backend = new BackendServer($lineParts[1], $lineParts[3], $lineParts[4], (int)$lineParts[18]);
+                    $backend->setOptions($this->getBackendDefaultoptions());
                     $this->addServer($backend);
                     $serversLoaded++;
                     Log::debug("Loaded server", ['server' => "{$backend->getBackend()}/{$backend->getServer()}"]);

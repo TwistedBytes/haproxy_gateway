@@ -1,4 +1,5 @@
 [Unit]
+# One-shot service to load HAProxy state after start
 Description=Load HAProxy State After start
 After=haproxy.service
 Requires=haproxy.service
