@@ -118,6 +118,7 @@ class AdminInterface {
 
         // add server sp-api3-backends/sp-api-backend-16 10.4.6.136:80 check inter 5s downinter 15s rise 3 fall 2 slowstart 60s maxconn 2 maxqueue 128 weight 100
         $result = $this->socket(sprintf('add server %s/%s %s:%u %s', $server->getBackend(), $server->getServer(), $server->getAddress(), $server->getPort(), $server->getOptions()));
+        $this->enableServer($server);
 
         $this->saveServerState();
 
@@ -256,6 +257,7 @@ class AdminInterface {
 
         $file = new \SplFileObject($path);
 
+        $serversLoaded = 0;
         while (!$file->eof()) {
             $line = $file->fgets();
             if (!Str::startsWith($line, '#') && $line !== '' && strlen($line) > 2) {
@@ -264,10 +266,12 @@ class AdminInterface {
                 if (in_array($lineParts[1], $backends)) {
                     $backend = new BackendServer($lineParts[1], $lineParts[3], $lineParts[4], (int)$lineParts[18]);
                     $this->addServer($backend);
+                    $serversLoaded++;
                     Log::debug("Loaded server", ['server' => "{$backend->getBackend()}/{$backend->getServer()}"]);
                 }
             }
         }
+        Log::debug("Servers loaded: {$serversLoaded}");
         $this->skipSaveState = false;
         $file = null;
     }
@@ -297,10 +301,10 @@ class AdminInterface {
             // UNIX Domain Socket, @ to hide warnings.
             $this->socket = stream_socket_client('unix://' . realpath($this->connection_string), $errorno, $errorstr);
         } else {
-            throw new Exception("Could not open a connection to \"$this->connection_string\": the connection string is invalid");
+            throw new HaproxyException("Could not open a connection to \"$this->connection_string\": the connection string is invalid");
         }
         if (!$this->socket) {
-            throw new Exception("Could not open a connection to \"$this->connection_string\": $errorstr ($errorno)");
+            throw new HaproxyException("Could not open a connection to \"$this->connection_string\": $errorstr ($errorno)");
         }
     }
 

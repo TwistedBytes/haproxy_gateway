@@ -1,0 +1,17 @@
+[Unit]
+Description=Load HAProxy State After start
+After=haproxy.service
+Requires=haproxy.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+
+User=haproxy
+Group=haproxy
+EnvironmentFile=-/etc/sysconfig/haproxy-gateway-defaults
+EnvironmentFile=-/etc/sysconfig/haproxy-gateway
+ExecStart=/opt/haproxy-gateway/haproxy-gateway php-cli artisan app:load-backend-server-state sp-api3-backends
+
+[Install]
+WantedBy=multi-user.target haproxy.service

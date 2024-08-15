@@ -3,7 +3,7 @@ networks:
 
 services:
   php:
-    image: dunglas/frankenphp
+    image: dunglas/frankenphp:php8.3-bookworm
     # uncomment the following line if you want to use a custom Dockerfile
     build: docker/frankenphp
     # uncomment the following line if you want to run this in a production environment
@@ -12,10 +12,10 @@ services:
       backend:
         aliases:
           - frankenphp
-    ports:
-      - "8080:80" # HTTP
-      - "8443:443" # HTTPS
-      - "8443:443/udp" # HTTP/3
+#    ports:
+#      - "8080:80" # HTTP
+#      - "8443:443" # HTTPS
+#      - "8443:443/udp" # HTTP/3
     environment:
       SERVER_NAME: "http://"
       FRANKENPHP_CONFIG: "num_threads 4"
@@ -42,7 +42,7 @@ services:
       - ./config/ssl/haproxy/:/etc/haproxy-ssl/
       - ./config/haproxy-simple/:/usr/local/etc/haproxy/
     ports:
-      - "8183:8443"
+      - "8443:8443"
       - "8081:8081" # haproxy admin socket
       - "5555:5555" # haproxy dataplaneapi
 
