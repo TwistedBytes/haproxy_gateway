@@ -16,7 +16,6 @@ class HaproxyAdminProvider extends ServiceProvider
         $this->app->singleton(AdminInterface::class, function (Application $app) {
             $ai = new AdminInterface(
                 connection_string: config('haproxyadmin.connection_string'),
-                state_path: config('haproxyadmin.state_path'),
                 backend_state_path: config('haproxyadmin.backend_state_path'),
             );
             $ai->setBackendDefaultoptions(config('haproxyadmin.backend_defaultoptions'));

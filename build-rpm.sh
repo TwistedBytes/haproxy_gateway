@@ -28,8 +28,8 @@ cp -f rpm/haproxy-gateway.service rpmbuild/usr/lib/systemd/system/haproxy-gatewa
 chmod 644 rpmbuild/usr/lib/systemd/system/haproxy-gateway.service
 cp -f rpm/haproxy-gateway-loadservers.service rpmbuild/usr/lib/systemd/system/haproxy-gateway-loadservers.service
 chmod 644 rpmbuild/usr/lib/systemd/system/haproxy-gateway-loadservers.service
-cp -f rpm/sysconfig-haproxy-gateway.conf rpmbuild/etc/sysconfig/haproxy-gateway
-chmod 644 rpmbuild/etc/sysconfig/haproxy-gateway
+cp -f rpm/sysconfig-haproxy-gateway.conf rpmbuild/etc/sysconfig/haproxy-gateway-defaults
+chmod 644 rpmbuild/etc/sysconfig/haproxy-gateway-defaults
 cp -f rpm/after-install.sh rpmbuild/scripts/
 chmod +x rpmbuild/scripts/after-install.sh
 

@@ -22,21 +22,15 @@ class AdminInterface {
      */
     private bool $skipSaveState = false;
 
-    private string $state_path;
     private string $backend_state_path;
 
     public function __construct(
         string $connection_string,
-        string $state_path = '/etc/haproxy/state',
         string $backend_state_path = '/etc/haproxy/backendstate',
     ) {
         $this->connection_string = $connection_string;
-        $this->state_path = $state_path;
         $this->backend_state_path = $backend_state_path;
 
-        if (!is_dir($this->state_path)) {
-            mkdir($this->state_path, 0750, true);
-        }
         if (!is_dir($this->backend_state_path)) {
             mkdir($this->backend_state_path, 0750, true);
         }
