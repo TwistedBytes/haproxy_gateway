@@ -17,6 +17,7 @@ class HaproxyAdminProvider extends ServiceProvider
             $ai = new AdminInterface(
                 connection_string: config('haproxyadmin.connection_string'),
                 state_path: config('haproxyadmin.state_path'),
+                backend_state_path: config('haproxyadmin.backend_state_path'),
             );
             $ai->setBackendDefaultoptions(config('haproxyadmin.backend_defaultoptions'));
 

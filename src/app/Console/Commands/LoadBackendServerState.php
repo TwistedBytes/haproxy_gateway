@@ -11,7 +11,7 @@ class LoadBackendServerState extends Command {
      *
      * @var string
      */
-    protected $signature = 'app:load-backend-server-state {backend}';
+    protected $signature = 'app:load-backend-server-state';
 
     /**
      * The console command description.
@@ -24,6 +24,8 @@ class LoadBackendServerState extends Command {
      * Execute the console command.
      */
     public function handle(AdminInterface $haproxyadmin): void {
-        $haproxyadmin->loadServerState([$this->argument('backend')]);
+        # $haproxyadmin->loadServerState([$this->argument('backend')]);
+        $haproxyadmin->loadBackendStates($haproxyadmin->getStateBackends());
+
     }
 }

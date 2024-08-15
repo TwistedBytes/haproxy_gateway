@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace App\Lib\Haproxy;
 
 use App\Lib\Haproxy\Exceptions\HaproxyException;
-use App\Lib\Haproxy\Exceptions\UnknownApiReplyException;
 use App\Lib\Haproxy\Model\ActionResult;
 use App\Lib\Haproxy\Model\BackendServer;
 use App\Lib\Haproxy\Model\Map;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -20,20 +20,27 @@ class AdminInterface {
     /**
      * @var mixed|string
      */
-    private mixed $method;
     private bool $skipSaveState = false;
 
     private string $state_path;
+    private string $backend_state_path;
 
     public function __construct(
         string $connection_string,
-        string $state_path = '/etc/haproxy/state/') {
+        string $state_path = '/etc/haproxy/state',
+        string $backend_state_path = '/etc/haproxy/backendstate',
+    ) {
         $this->connection_string = $connection_string;
         $this->state_path = $state_path;
+        $this->backend_state_path = $backend_state_path;
 
         if (!is_dir($this->state_path)) {
-            mkdir($this->state_path, 0755, true);
+            mkdir($this->state_path, 0750, true);
         }
+        if (!is_dir($this->backend_state_path)) {
+            mkdir($this->backend_state_path, 0750, true);
+        }
+
     }
 
     public function socket(string $command) {
@@ -96,7 +103,6 @@ class AdminInterface {
     public function enableServer(BackendServer $server) {
         $this->socket(sprintf('enable health %s/%s', $server->getBackend(), $server->getServer()));
         $this->socket(sprintf('enable server %s/%s', $server->getBackend(), $server->getServer()));
-
     }
 
     public function disableServer(BackendServer $server) {
@@ -106,8 +112,9 @@ class AdminInterface {
         // del server sp-api3-backends/sp-api-backend-16
 
         $this->socket(sprintf('set server %s/%s state maint', $server->getBackend(), $server->getServer()));
-        sleep(5);
+        sleep(1);
         $this->socket(sprintf('shutdown sessions server %s/%s', $server->getBackend(), $server->getServer()));
+        // TODO: better check if server does not have any sessions.
     }
 
     public function addServer(BackendServer $server): ActionResult {
@@ -120,7 +127,7 @@ class AdminInterface {
         $result = $this->socket(sprintf('add server %s/%s %s:%u %s', $server->getBackend(), $server->getServer(), $server->getAddress(), $server->getPort(), $server->getOptions()));
         $this->enableServer($server);
 
-        $this->saveServerState();
+        $this->saveBackendState($server);
 
         return new ActionResult(true, $result);
     }
@@ -130,7 +137,7 @@ class AdminInterface {
             $this->disableServer($server);
             $result = $this->socket(sprintf('del server  %s/%s', $server->getBackend(), $server->getServer()));
 
-            $this->saveServerState();
+            $this->removeBackendState($server);
 
             return new ActionResult(true, $result);
         } else {
@@ -238,43 +245,65 @@ class AdminInterface {
         $file = null;
     }
 
-    private function saveServerState(): void {
+    private function saveBackendState(BackendServer $server): void {
         if ($this->skipSaveState) {
             return;
         }
-        $path = "{$this->state_path}/haproxy.state";
 
-        // add server sp-api3-backends/sp-api-backend-16 10.4.6.136:80 check inter 5s downinter 15s rise 3 fall 2 slowstart 60s maxconn 2 maxqueue 128 weight 100
-        $result = $this->socket(sprintf("show servers state"));
-
-        file_put_contents($path, $result);
+        Log::debug("Saving server {$server->getBackend()}/{$server->getServer()}");
+        $backend_path = sprintf('%s/%s', $this->backend_state_path, $server->getBackend());
+        if (!is_dir($backend_path)) {
+            mkdir($backend_path, 0750, true);
+        }
+        file_put_contents(
+            sprintf('%s/%s', $backend_path, $server->getServer()),
+            sprintf('%s,%s,%s,%u,%s', $server->getBackend(), $server->getServer(), $server->getAddress(), $server->getPort(), $server->getOptions())
+        );
+        Log::debug("Saved server {$server->getBackend()}/{$server->getServer()}");
     }
 
-    public function loadServerState(array $backends): void {
-        $path = "{$this->state_path}/haproxy.state";
+    private function removeBackendState(BackendServer $server): void {
+        Log::debug("Removing server {$server->getBackend()}/{$server->getServer()}");
 
-        $this->skipSaveState = true;
+        $backend_path = sprintf('%s/%s', $this->backend_state_path, $server->getBackend());
+        $backend_file = sprintf('%s/%s', $backend_path, $server->getServer());
+        is_file($backend_file) &&
+        unlink($backend_file);
 
-        $file = new \SplFileObject($path);
+        Log::debug("Removed server {$server->getBackend()}/{$server->getServer()}");
+    }
 
-        $serversLoaded = 0;
-        while (!$file->eof()) {
-            $line = $file->fgets();
-            if (!Str::startsWith($line, '#') && $line !== '' && strlen($line) > 2) {
-                $lineParts = explode(' ', $line);
-                //6 backend_test 1 sp-api-backend-15 192.168.33.15 0 0 1 1 442 7 2 0 6 0 0 0 - 80 - 0 0 - - 0
-                if (in_array($lineParts[1], $backends)) {
-                    $backend = new BackendServer($lineParts[1], $lineParts[3], $lineParts[4], (int)$lineParts[18]);
-                    $backend->setOptions($this->getBackendDefaultoptions());
-                    $this->addServer($backend);
-                    $serversLoaded++;
-                    Log::debug("Loaded server", ['server' => "{$backend->getBackend()}/{$backend->getServer()}"]);
-                }
+    public function getStateBackends(): array {
+        return Arr::map(glob($this->backend_state_path . '/*', GLOB_ONLYDIR),
+            function (string $value, string $key) {
+                return basename($value);
             }
+        );
+    }
+
+    public function loadBackendStates(array $backends): void {
+        foreach ($backends as $backend) {
+            $this->loadBackendState($backend);
+        }
+    }
+
+    public function loadBackendState(string $backend): void {
+        $backend_path = sprintf('%s/%s', $this->backend_state_path, $backend);
+        $this->skipSaveState = true;
+        $serversLoaded = 0;
+
+        Log::debug("Loading servers from {$backend_path}", ['backend' => $backend]);
+        foreach (glob("$backend_path/*") as $filename) {
+            $lineParts = explode(',', file_get_contents($filename));
+            $backend = new BackendServer($lineParts[0], $lineParts[1], $lineParts[2], (int)$lineParts[3]);
+            $backend->setOptions($lineParts[4]);
+
+            $this->addServer($backend);
+            $serversLoaded++;
+            Log::debug("Loaded server", ['server' => "{$backend->getBackend()}/{$backend->getServer()}"]);
         }
         Log::debug("Servers loaded: {$serversLoaded}");
         $this->skipSaveState = false;
-        $file = null;
     }
 
     protected function executeSocket(string $command): string {

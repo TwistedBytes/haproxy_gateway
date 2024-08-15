@@ -7,3 +7,4 @@ tmp
 /haproxy-gateway-*.rpm
 /config/haproxy-simple/state/haproxy.state
 /rpmbuild
+/config/haproxy-simple/backendstate/
