@@ -18,6 +18,7 @@ mkdir -p \
     rpmbuild/etc/sysconfig/ \
     rpmbuild/usr/lib/systemd/system \
     rpmbuild/var/log/haproxy-gateway \
+    rpmbuild/var/log/haproxy-gateway/logs \
     rpmbuild/scripts
 
 mkdir -p rpmbuild/var/log/haproxy-gateway/framework/{sessions,views,cache}
@@ -41,7 +42,7 @@ podman run --rm -ti \
         --rpm-group haproxy \
         --after-install scripts/after-install.sh  \
         --exclude scripts \
-        --config-files /etc/sysconfig/haproxy-gateway \
+        --config-files /etc/sysconfig/haproxy-gateway-defaults \
         --name haproxy-gateway --version ${VERSION} --iteration ${ITERATION} \
         --description "twistedbytes haproxy-gateway" \
         --rpm-tag 'Requires: curl' \
