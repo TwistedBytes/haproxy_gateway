@@ -1,0 +1,2 @@
+[Service]
+ExecReload=/bin/sh -c 'systemctl restart haproxy-gateway-loadservers &'

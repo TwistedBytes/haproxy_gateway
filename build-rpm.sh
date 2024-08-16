@@ -17,6 +17,7 @@ mkdir -p \
     rpmbuild/opt/haproxy-gateway \
     rpmbuild/etc/sysconfig/ \
     rpmbuild/usr/lib/systemd/system \
+    rpmbuild/etc/systemd/system/haproxy.service.d \
     rpmbuild/var/log/haproxy-gateway \
     rpmbuild/var/log/haproxy-gateway/logs \
     rpmbuild/scripts
@@ -31,6 +32,10 @@ cp -f rpm/haproxy-gateway-loadservers.service rpmbuild/usr/lib/systemd/system/ha
 chmod 644 rpmbuild/usr/lib/systemd/system/haproxy-gateway-loadservers.service
 cp -f rpm/sysconfig-haproxy-gateway.conf rpmbuild/etc/sysconfig/haproxy-gateway-defaults
 chmod 644 rpmbuild/etc/sysconfig/haproxy-gateway-defaults
+cp -f rpm/haproxy-dropin-loadservers.service rpmbuild/etc/systemd/system/haproxy.service.d/haproxy-dropin-loadservers.service
+chmod 644 rpmbuild/etc/sysconfig/haproxy-gateway-defaults
+
+
 cp -f rpm/after-install.sh rpmbuild/scripts/
 chmod +x rpmbuild/scripts/after-install.sh
 
