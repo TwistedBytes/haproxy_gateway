@@ -32,7 +32,7 @@ cp -f rpm/haproxy-gateway-loadservers.service rpmbuild/usr/lib/systemd/system/ha
 chmod 644 rpmbuild/usr/lib/systemd/system/haproxy-gateway-loadservers.service
 cp -f rpm/sysconfig-haproxy-gateway.conf rpmbuild/etc/sysconfig/haproxy-gateway-defaults
 chmod 644 rpmbuild/etc/sysconfig/haproxy-gateway-defaults
-cp -f rpm/haproxy-dropin-loadservers.service rpmbuild/etc/systemd/system/haproxy.service.d/haproxy-dropin-loadservers.service
+cp -f rpm/haproxy-dropin-loadservers.conf rpmbuild/etc/systemd/system/haproxy.service.d/haproxy-loadservers.conf
 chmod 644 rpmbuild/etc/sysconfig/haproxy-gateway-defaults
 
 
