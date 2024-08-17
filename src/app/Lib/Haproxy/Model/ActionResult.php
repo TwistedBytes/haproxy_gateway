@@ -6,10 +6,12 @@ class ActionResult {
 
     private bool $succes;
     private string $message;
+    private array $messages;
 
-    public function __construct(bool $succes, string $message) {
+    public function __construct(bool $succes, string $message=null, array $messages = []) {
         $this->succes = $succes;
         $this->message = $message;
+        $this->messages = $messages;
     }
 
     public function isSucces(): bool {
@@ -21,9 +23,18 @@ class ActionResult {
     }
 
     public function toArray(): array {
-        return [
+        $arr = [
             'succes' => $this->succes,
-            'message' => trim($this->message),
         ];
+
+        if ($this->message) {
+            $arr['message'] = trim($this->message);
+        }
+
+        if ($this->messages) {
+            $arr['messages'] = $this->messages;
+        }
+
+        return $arr;
     }
 }

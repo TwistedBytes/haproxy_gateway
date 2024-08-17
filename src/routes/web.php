@@ -25,4 +25,8 @@ Route::prefix('map')->group(function () {
 Route::prefix('backendserver')->group(function () {
     Route::get('/add/{backend}/{server}/{address}/{port}', [HaproxyBackendServerController::class, 'add']);
     Route::get('/del/{backend}/{server}', [HaproxyBackendServerController::class, 'del']);
+
+    Route::get('/enable/{backend}/{server}', [HaproxyBackendServerController::class, 'enable']);
+    Route::get('/disable/{backend}/{server}', [HaproxyBackendServerController::class, 'disable']);
+
 });

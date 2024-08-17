@@ -26,4 +26,20 @@ class HaproxyBackendServerController extends Controller {
         return response()->json($result->toArray());
     }
 
+
+    public function enable(AdminInterface $haproxyadmin, string $backend, string $server) : \Illuminate\Http\JsonResponse {
+        $bs = new BackendServer($backend, $server);
+        $result = $haproxyadmin->enableServer($bs);
+
+        return response()->json($result->toArray());
+    }
+
+
+    public function disable(AdminInterface $haproxyadmin, string $backend, string $server) : \Illuminate\Http\JsonResponse {
+        $bs = new BackendServer($backend, $server);
+        $result = $haproxyadmin->disableServer($bs);
+
+        return response()->json($result->toArray());
+    }
+
 }

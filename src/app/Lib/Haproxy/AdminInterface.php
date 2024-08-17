@@ -94,21 +94,27 @@ class AdminInterface {
         return false;
     }
 
-    public function enableServer(BackendServer $server) {
-        $this->socket(sprintf('enable health %s/%s', $server->getBackend(), $server->getServer()));
-        $this->socket(sprintf('enable server %s/%s', $server->getBackend(), $server->getServer()));
+    public function enableServer(BackendServer $server) : ActionResult {
+        $result =[];
+        $result[] = $this->socket(sprintf('enable health %s/%s', $server->getBackend(), $server->getServer()));
+        $result[] = $this->socket(sprintf('enable server %s/%s', $server->getBackend(), $server->getServer()));
+
+        return new ActionResult(true, messages: $result);
     }
 
-    public function disableServer(BackendServer $server) {
+    public function disableServer(BackendServer $server) : ActionResult {
         // set server sp-api3-backends/sp-api-backend-16 state maint
         // wait 5 seconds
         // shutdown sessions server sp-api3-backends/sp-api-backend-16
         // del server sp-api3-backends/sp-api-backend-16
 
-        $this->socket(sprintf('set server %s/%s state maint', $server->getBackend(), $server->getServer()));
+        $result =[];
+        $result[] = $this->socket(sprintf('set server %s/%s state maint', $server->getBackend(), $server->getServer()));
         sleep(1);
-        $this->socket(sprintf('shutdown sessions server %s/%s', $server->getBackend(), $server->getServer()));
+        $result[] = $this->socket(sprintf('shutdown sessions server %s/%s', $server->getBackend(), $server->getServer()));
         // TODO: better check if server does not have any sessions.
+
+        return new ActionResult(true, messages: $result);
     }
 
     public function addServer(BackendServer $server): ActionResult {
