@@ -96,8 +96,11 @@ class AdminInterface {
 
     public function enableServer(BackendServer $server) : ActionResult {
         $result =[];
-        $result[] = $this->socket(sprintf('enable health %s/%s', $server->getBackend(), $server->getServer()));
-        $result[] = $this->socket(sprintf('enable server %s/%s', $server->getBackend(), $server->getServer()));
+        $result[] = $this->socket(
+            sprintf('enable health %s/%s', $server->getBackend(), $server->getServer())
+            .';'.
+            sprintf('enable server %s/%s', $server->getBackend(), $server->getServer())
+        );
 
         return new ActionResult(true, messages: $result);
     }

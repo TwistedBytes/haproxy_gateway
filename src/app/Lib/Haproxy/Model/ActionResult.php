@@ -5,7 +5,7 @@ namespace App\Lib\Haproxy\Model;
 class ActionResult {
 
     private bool $succes;
-    private string $message;
+    private ?string $message;
     private array $messages;
 
     public function __construct(bool $succes, string $message=null, array $messages = []) {
