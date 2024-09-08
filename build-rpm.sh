@@ -19,10 +19,7 @@ mkdir -p \
     rpmbuild/usr/lib/systemd/system \
     rpmbuild/etc/systemd/system/haproxy.service.d \
     rpmbuild/var/log/haproxy-gateway \
-    rpmbuild/var/log/haproxy-gateway/logs \
     rpmbuild/scripts
-
-mkdir -p rpmbuild/var/log/haproxy-gateway/framework/{sessions,views,cache}
 
 cp -f haproxy-gateway rpmbuild/opt/haproxy-gateway
 chmod +x rpmbuild/opt/haproxy-gateway

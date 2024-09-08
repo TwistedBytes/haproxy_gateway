@@ -7,4 +7,4 @@ RUN install-php-extensions \
 	intl \
 	zip \
     sockets \
-	opcache
+	opcache pcntl posix

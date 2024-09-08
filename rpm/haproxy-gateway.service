@@ -11,6 +11,7 @@ Group=haproxy
 EnvironmentFile=-/etc/sysconfig/haproxy-gateway-defaults
 EnvironmentFile=-/etc/sysconfig/haproxy-gateway
 ExecStart=/opt/haproxy-gateway/haproxy-gateway php-server --listen $LISTEN $EXTRA_OPTIONS
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target

@@ -27,6 +27,8 @@ services:
       - ./config/haproxy-simple/:/usr/local/etc/haproxy/
     # comment the following line in production, it allows to have nice human-readable logs in dev
     tty: true
+    # octane
+    # entrypoint: ["php", "artisan", "octane:frankenphp", "--host=0.0.0.0", "--port=80", "--admin-port=2019"]
 
   haproxy:
     image: haproxytech/haproxy-ubuntu:2.8
@@ -47,7 +49,7 @@ services:
       - "5555:5555" # haproxy dataplaneapi
 
   php-cli:
-    image: twistedbytes/centos8-phpfpm82
+    image: twistedbytes/centos8-phpfpm83
     restart: "no"
     working_dir: /app/src
     # user: "${APP_USER_ID}:${APP_GROUP_ID}"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 _PWD=$(pwd)
 
 TMPDIR=./tmp
@@ -12,7 +14,6 @@ else
     git archive HEAD | tar -x -C $TMPDIR/my-prepared-app1
     mv $TMPDIR/my-prepared-app1/src $TMPDIR/my-prepared-app
     rm -Rf $TMPDIR/my-prepared-app1
-
 fi
 
 cd $TMPDIR/my-prepared-app
@@ -26,7 +27,11 @@ rm -Rf tests/
 
 # Install the dependencies
 podman compose run --rm -w /app/tmp/my-prepared-app php-cli \
-    composer install --ignore-platform-reqs --no-dev -a
+    composer install --ignore-platform-reqs --no-dev -a --no-interaction --prefer-dist --optimize-autoloader
+podman compose run --rm -w /app/tmp/my-prepared-app php-cli \
+    php artisan view:cache
+podman compose run --rm -w /app/tmp/my-prepared-app php-cli \
+    php artisan route:cache
 
 podman build -t static-app -f ${_PWD}/static-build.Dockerfile .
 podman cp $(podman create --name static-app-tmp static-app):/go/src/app/dist/frankenphp-linux-x86_64 my-app
@@ -34,4 +39,3 @@ podman rm static-app-tmp
 mv my-app ${_PWD}/haproxy-gateway
 cd $_PWD
 rm tmp -Rf
-
