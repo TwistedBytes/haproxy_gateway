@@ -28,10 +28,10 @@ rm -Rf tests/
 # Install the dependencies
 podman compose run --rm -w /app/tmp/my-prepared-app php-cli \
     composer install --ignore-platform-reqs --no-dev -a --no-interaction --prefer-dist --optimize-autoloader
-podman compose run --rm -w /app/tmp/my-prepared-app php-cli \
-    php artisan view:cache
-podman compose run --rm -w /app/tmp/my-prepared-app php-cli \
-    php artisan route:cache
+#podman compose run --rm -w /app/tmp/my-prepared-app php-cli \
+#    php artisan view:cache
+#podman compose run --rm -w /app/tmp/my-prepared-app php-cli \
+#    php artisan route:cache
 
 podman build -t static-app -f ${_PWD}/static-build.Dockerfile .
 podman cp $(podman create --name static-app-tmp static-app):/go/src/app/dist/frankenphp-linux-x86_64 my-app
